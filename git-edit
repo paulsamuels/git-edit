@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+
+if ENV['GIT_SEQUENCE_EDITOR'] != __FILE__
+  exec "GIT_SEQUENCE_EDITOR='#{__FILE__}' git rebase -ip #{ARGV.first}~1"
+end
+
+todo_list = ARGV.first
+
+lines = File.readlines(todo_list)
+  .lazy
+  .take_while { |line| line != "\n" }
+  .map        { |line| line.gsub("fixup", "pick") }
+  .to_a
+  
+lines[0] = lines[0].gsub("pick", "edit")
+
+File.write(todo_list, lines.join)
